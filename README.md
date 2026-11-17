@@ -1,90 +1,75 @@
 # Starting Grid vs. Final Position in Formula 1
 
-![F1 Banner](https://www.formula1.com/etc/designs/fom-website/images/f1_logo.svg)
+How much does the starting grid decide a Formula 1 race? This project answers that with data: a full analysis in R, from cleaning a real dataset of race results to a correlation test and a simple linear regression.
 
-## 📝 About the Project
+![Grid position vs. final position](plots/relacao_grid_posicao.png)
 
-This data analysis project uses R and RStudio to investigate a core question in motorsport: **how much does the starting grid position really influence a driver's final position in a Formula 1 race?**
+## Key findings
 
-It follows a full analysis cycle, from data collection and cleaning to statistical modeling and visualization, to quantify this relationship and test the hypothesis that starting at the front is a decisive factor for success.
+Computed from `data/results.csv` with the same steps as `scripts/analise_f1.r` (drivers who were classified at the finish and did not start from the pit lane):
 
-## 🎯 Goals
+| Measure | Value |
+| --- | --- |
+| Race results analysed | 15,746, from 1,125 races |
+| Pearson correlation (grid vs. final position) | **0.65** |
+| R² of the linear model | **0.42** |
+| Slope | **+0.47** positions at the finish for each position further back on the grid |
+| p-value | < 2e-16 |
 
-* Clean and prepare a real dataset of F1 race results.
-* Run an Exploratory Data Analysis (EDA) to visualize the relationship between the variables.
-* Measure the correlation between starting position and final position.
-* Build and interpret a simple linear regression model that predicts the race result from the grid position.
-* Communicate the results clearly.
+- **Starting position matters a lot.** The correlation is strong and positive, and grid position alone explains about 42% of the variation in where a driver finishes.
+- **But it is not destiny.** On average, each place lost on the grid costs about half a place at the finish, and 58% of the variation comes from everything else: car, driver, strategy, incidents and reliability.
+- In practice, this supports how much a good qualifying session on Saturday matters for the result on Sunday.
 
-## 💾 Data Source
+## Data
 
-The dataset comes from Kaggle and contains Formula 1 race results from 1950 to 2020. The main file used in this analysis is `results.csv`.
+The dataset is the [Formula 1 World Championship (1950 - 2020)](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) on Kaggle. This project uses `results.csv`, with one row per driver per race (26,759 rows).
 
-* **Dataset:** [Formula 1 World Championship (1950 - 2020) on Kaggle](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020)
+## Method
 
-## 🛠️ Tools and Packages
+The script `scripts/analise_f1.r` follows these steps:
 
-* **Language:** R
-* **Environment:** RStudio
-* **Main packages:**
-    * `tidyverse`: a collection of R packages for data science, including:
-        * `dplyr`: data manipulation and cleaning.
-        * `ggplot2`: high-quality visualizations.
+1. **Load** `results.csv` and keep the `grid` and `position` columns.
+2. **Clean:** convert `position` to a number (non-numeric codes such as `\N` for non-classified drivers become `NA`), then drop rows with no final position and rows with `grid = 0`, which marks a pit lane start.
+3. **Explore:** a scatter plot of grid vs. final position with a linear trend line, saved to `plots/relacao_grid_posicao.png`.
+4. **Measure:** the Pearson correlation coefficient between the two variables.
+5. **Model:** a simple linear regression, `lm(position ~ grid)`, and its summary (coefficients, R² and p-value).
 
-## 📂 Project Structure
+## Limitations
+
+- **Only classified finishers are included.** About 37% of starts did not end with a final position, mostly retirements. Front-runners who retire are left out, so the relationship is measured among drivers who finished.
+- **Positions are ranks, not measurements.** A straight line is a useful first summary, but a rank-based correlation (Spearman) or an ordinal model would fit the nature of the data better.
+- **Seventy years in one model.** Grids, car reliability and race rules changed a lot between 1950 and 2020. Splitting the analysis by era would show whether qualifying matters more today than in the past.
+
+## Tools
+
+- **R** and **RStudio**
+- **tidyverse:** `dplyr` for cleaning and `ggplot2` for the chart
+
+## How to run
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/amarialeitao/F1-Grid-Analysis.git
+   cd F1-Grid-Analysis
+   ```
+2. The dataset is already in `data/results.csv`. To use a newer version, download it from [Kaggle](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) and replace the file.
+3. Open the project folder in RStudio and run `scripts/analise_f1.r` (click **Source**). The script installs `tidyverse` if needed, prints the correlation and the model summary, and saves the chart to `plots/`.
+
+## Project structure
 
 ```
 .
 ├── data/
 │   └── results.csv              # Race results dataset
 ├── plots/
-│   └── relacao_grid_posicao.png # Chart generated by the analysis
+│   └── relacao_grid_posicao.png # Scatter plot with the trend line
 ├── scripts/
-│   └── analise_f1.r             # R script with the full analysis
-└── README.md                    # Project documentation
+│   └── analise_f1.r             # Full analysis
+└── README.md
 ```
 
-## 🚀 How to Run
+The code comments and chart labels are in Portuguese.
 
-1.  **Clone this repository:**
-    ```bash
-    git clone https://github.com/amarialeitao/F1-Grid-Analysis.git
-    cd F1-Grid-Analysis
-    ```
-
-2.  **Download the data:**
-    * Download the dataset from the [Kaggle page](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020).
-    * Unzip it and move `results.csv` into the `data/` folder.
-
-3.  **Install the dependencies:**
-    * Open RStudio and run in the console:
-    ```r
-    install.packages("tidyverse")
-    ```
-
-4.  **Run the analysis:**
-    * Open `scripts/analise_f1.r` in RStudio.
-    * Run it line by line, or click "Source" to run the whole file. The chart is saved automatically to the `plots/` folder.
-
-## 📊 Analysis Steps
-
-The `analise_f1.r` script follows these steps:
-
-1.  **Setup:** loads the `tidyverse` package.
-2.  **Data loading:** reads `results.csv`.
-3.  **Cleaning and preparation:** selects the `grid` and `position` columns, converts them to numeric and removes invalid records (for example, drivers who did not finish the race).
-4.  **Exploratory Data Analysis (EDA):** builds a scatterplot with a trend line to visualize the relationship between the variables.
-5.  **Statistical modeling:**
-    * **Correlation test:** Pearson correlation coefficient.
-    * **Simple linear regression:** an `lm` model that predicts the final position from the grid position.
-6.  **Results and conclusion:** prints the model summary and interprets the statistics (`R-squared`, `p-value` and coefficients).
-
-## 📈 Key Findings
-
-The analysis confirms a **strong, positive and statistically significant correlation** between starting position and final position. The linear regression model shows that grid position is a relevant predictor of the race result, explaining a considerable share of the variation in results.
-
-This empirically supports how much a good qualifying session on Saturday matters for success on Sunday in Formula 1.
-
-## 📄 License
+## License
 
 [MIT](LICENSE)
