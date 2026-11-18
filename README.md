@@ -1,5 +1,9 @@
 # Starting Grid vs. Final Position in Formula 1
 
+[![Analysis](https://github.com/amarialeitao/F1-Grid-Analysis/actions/workflows/analysis.yml/badge.svg)](https://github.com/amarialeitao/F1-Grid-Analysis/actions/workflows/analysis.yml)
+![R](https://img.shields.io/badge/R-tidyverse-276DC3?logo=r&logoColor=white)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 How much does the starting grid decide a Formula 1 race? This project answers that with data: a full analysis in R, from cleaning a real dataset of race results to a correlation test and a simple linear regression.
 
 ![Grid position vs. final position](plots/relacao_grid_posicao.png)
@@ -55,6 +59,14 @@ The script `scripts/analise_f1.r` follows these steps:
 2. The dataset is already in `data/results.csv`. To use a newer version, download it from [Kaggle](https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020) and replace the file.
 3. Open the project folder in RStudio and run `scripts/analise_f1.r` (click **Source**). The script installs `tidyverse` if needed, prints the correlation and the model summary, and saves the chart to `plots/`.
 
+### Check the findings
+
+```bash
+Rscript tests/testa_resultados.R
+```
+
+This runs the full analysis and stops with an error if any number in the **Key findings** table no longer matches. The same check runs on every push in [GitHub Actions](https://github.com/amarialeitao/F1-Grid-Analysis/actions/workflows/analysis.yml), which also publishes the regenerated chart as a build artifact.
+
 ## Project structure
 
 ```
@@ -65,6 +77,8 @@ The script `scripts/analise_f1.r` follows these steps:
 │   └── relacao_grid_posicao.png # Scatter plot with the trend line
 ├── scripts/
 │   └── analise_f1.r             # Full analysis
+├── tests/
+│   └── testa_resultados.R       # Checks the README numbers
 └── README.md
 ```
 
